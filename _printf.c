@@ -10,8 +10,8 @@
 int _printf(const char *format, ...)
 {
 	int i, blen, hlen;
-	double totalBuffer;
-	double *total;
+	int totalBuffer;
+	int *total;
 	va_list argp;
 	char buffer[BUFSIZE], *holder;
 	char *(*pointer_get_valid)(va_list);

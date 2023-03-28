@@ -1,96 +1,109 @@
-#include "main.h"
+#include  "main.h"
 #include <stddef.h>
+#include <unistd.h>
 #include <stdlib.h>
 /**
- * get_valid_type - ID the type specifier passed by printf with a valid_type
- * @s: Type to check given as char
- * Return: pointer function of char type, valid_type matched
+ * _puts - prints a string to stdout
+ * @buffer: pointer to buffer
+ * @size: size of buffer
+ * Return: void
  */
-char *(*get_valid_type(char s))(va_list)
+void _puts(char *buffer, int size)
 {
-	int i;
-	v_types valid_types[] = {
-		{"c", found_char},
-		{"s", found_string},
-		{"%", found_percent},
-		{"d", found_int},
-		{"i", found_int},
-		{"u", found_unsigned},
-		{"o", found_octal},
-		{"r", found_reverse},
-		{"R", found_rot13},
-		{NULL, NULL}
-	};
+	write(1, buffer, size);
+}
 
-	for (i = 0; valid_types[i].valid; i++)
+/**
+ * _memcpy - copies memory area
+ * @dest: destination pointer
+ * @src: source pointer
+ * @n: number of bytes to copy
+ * @bufferlen: size of buffer
+ * Return: pointer to destination
+ */
+char *_memcpy(char *dest, char *src, unsigned int n, unsigned int bufferlen)
+{
+	unsigned int i;
+
+	for (i = 0; i < n; i++)
 	{
-
-		if (s == *valid_types[i].valid)
+		dest[i] = src[i];
+		if (i + 1 == bufferlen)
 		{
-			return (valid_types[i].f);
+			_puts(dest, bufferlen);
+			dest = dest - bufferlen;
+			bufferlen = BUFSIZE;
 		}
 	}
-
-	return (NULL);
+	return (dest);
 }
+
 /**
- * alloc_buffer - allocates characters to buffer, handling overflows
- * @hold: string to allocate into buffer
- * @hlen: hold length
- * @buffer: buffer char array
- * @blen: pointer to end of buffer
- * @total: pointer to total character counter
- * Return: buffer length
+ * _printf - prints formatted output to stdout
+ * @format: format string to print
+ * Return: number of characters printed
  */
-int alloc_buffer(char *hold, int hlen, char *buffer, int blen, double *total)
+int _printf(const char *format, ...)
 {
-	int sizecpy = 0;
+	va_list arg_list;
+	int i, j, len = 0, buf_len = 0, conv_len = 0;
+	char buffer[BUFSIZE], *hold, *temp, *final_string;
+	char *(*valid_type_func)(va_list);
+	int  total_chars = 0;
 
-	if (hlen + blen > BUFSIZE)
+	if (format == NULL)
+		return (-1);
+	va_start(arg_list, format);
+	for (i = 0; format[i]; i++)
 	{
-		sizecpy = BUFSIZE - blen;
-		_memcpy(buffer, hold, sizecpy, blen);
-		_puts(buffer, BUFSIZE);
-		hold += sizecpy;
-		_memcpy(buffer, hold, hlen - sizecpy, 0);
-		blen = hlen - sizecpy;
-		*total += BUFSIZE;
+		if (format[i] != '%')
+		{
+			buffer[buf_len++] = format[i];
+			if (buf_len == BUFSIZE)
+			{
+				_puts(buffer, BUFSIZE);
+				buf_len = 0;
+				total_chars += BUFSIZE;
+			}
+			continue;
+		}
+		len++;
+		i++;
+		while (format[i] == ' ')
+			i++;
+		if (!format[i])
+			return (-1);
+		valid_type_func = get_valid_type(format[i]);
+		if (valid_type_func == NULL)
+		{
+			if (format[i] == '\0')
+				return (-1);
+			hold = found_nothing(format[i]);
+			len += 2;
+			temp = hold;
+		}
+		else
+		{
+			temp = valid_type_func(arg_list);
+			conv_len = _strlen(temp);
+			if (conv_len == 0)
+				return (-1);
+			len += conv_len - 2;
+		}
+		buf_len = alloc_buffer(temp, conv_len, buffer, buf_len, &total_chars);
 	}
-	else
-	{
-		_memcpy(buffer, hold, hlen, blen);
-		blen += hlen;
-	}
-
-	return (blen);
+	_puts(buffer, buf_len);
+	total_chars += buf_len;
+	va_end(arg_list);
+	final_string = malloc(total_chars + 1);
+	if (final_string == NULL)
+		return (-1);
+	final_string[total_chars] = '\0';
+	_puts(buffer, total_chars);
+	for (j = 0; j < total_chars; j++)
+		final_string[j] = buffer[j];
+	buf_len = 0;
+	free(final_string);
+	return (len + 1);
 }
-/**
-  * ctos - converts a character to a string
-  * @c: character to convert
-  * Return: pointer to string
-  */
-char *ctos(char c)
-{
-	char string[1];
-	char *p;
 
-	p = string;
-	string[0] = c;
-	return (p);
-}
-/**
- * found_nothing - no matches found but % passed
- * @c: character unmatched to return and store
- * Return: string with percent and character.
- */
-char *found_nothing(char c)
-{
-	char string[3];
-	char *p;
-
-	p = string;
-	string[0] = '%';
-	string[1] = c;
-	string[2] = '\0';
-	return (p);
-}

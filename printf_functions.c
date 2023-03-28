@@ -25,7 +25,7 @@ char *found_string(va_list *s)
 {
 	char *string;
 
-	string = va_arg(s, char *);
+	string = va_arg(*s, char *);
 	if (string == NULL)
 		return ("(null)");
 	return (string);
