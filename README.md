@@ -1,4 +1,5 @@
- Project to be done in teams of 2 people (your team: Ian Oluoch, Cyprian Wetende > Requirements
+ Project to be done in teams of 2 people (Ian Oluoch, Cyprian Wetende)
+ Requirements
 General
 
     Allowed editors: vi, vim, emacs
