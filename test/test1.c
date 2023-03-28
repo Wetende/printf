@@ -1,12 +1,10 @@
-#include <limits.h>
-#include <stdio.h>
 #include "main.h"
 
 int main(void)
 {
     int len;
 
-    len = _printf("Hello, Holberton!\n");
+    len = _printf("Let's try to printf a simple sentence.\n");
     _printf("Length:[%d, %i]\n", len, len);
     len = _printf("Negative:[%d]\n", -762534);
     _printf("Length:[%d, %i]\n", len, len);
@@ -14,7 +12,6 @@ int main(void)
     _printf("Length:[%d, %i]\n", len, len);
     len = _printf("Unknown:[%r]\n");
     _printf("Length:[%d, %i]\n", len, len);
-
     return (0);
 }
 
